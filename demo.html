@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<meta http-equiv="refresh" content="120">
+<!--meta http-equiv="refresh" content="120"-->
 <html>
 <head>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
  <script type="text/javascript">
- google.charts.load('current', {'packages':['bar']});
+ google.charts.load('current', {packages: ['corechart', 'bar']});
       google.charts.setOnLoadCallback(drawStuff);
  var HttpClient = function() {
  this.get = function(aUrl, aCallback) {
@@ -83,21 +83,41 @@ mainarray[0] = nestedarray;
         var options = {
           title: 'Statewise count',
           width: "40%",
-		  chartArea:{left:10,top:100,width:"35%",height:"35%"},
+		  chartArea:{left:250,top:100,width:"100%", height:"100%"},
           legend: { position: 'none' },
-          chart: { title: 'Statewise count',
-                   subtitle: '' },
+		  bar: { groupWidth: "70%" },
           bars: 'horizontal', // Required for Material Bar Charts.
-          axes: {
-            x: {
-              0: { side: 'top', label: 'Total Confirmed Cases'} // Top x-axis.
-            }
+          hAxis: {
+          title: 'Total Confirmed Cases',
+          minValue: 0,
+          textStyle: {
+			side:'top',
+            bold: true,
+            fontSize: 12,
+            color: '#4d4d4d'
           },
-          bar: { groupWidth: "90%" }
-        };
-        var chart = new google.charts.Bar(document.getElementById('top_x_div'));
+          titleTextStyle: {
+            bold: true,
+            fontSize: 14,
+            color: '#2c47f5'
+          }
+        },
+        vAxis: {
+          title: 'State',
+          textStyle: {
+            fontSize: 21,
+            bold: true,
+            color: '#2c47f5'
+          },
+          titleTextStyle: {
+            fontSize: 30,
+            bold: true,
+            color: '#b30b0b'
+          }
+        }
+      };
+		var chart = new google.visualization.BarChart(document.getElementById('top_x_div'));
         chart.draw(data, options);
-		chart
       };
 	  
 	  
@@ -158,7 +178,7 @@ th, td {
 </head>
 <body style="background-color:#333333;"> 
 <div style="position:relative;width:100%">
-<table border="1" align="right" width="35%" id="dynamicTable" style="font-size:30pt; font-family:arial; font-weight:bold; padding:5px; color:#ffffff">
+<table border="1" align="right" width="33%" id="dynamicTable" style="font-size:28pt; font-family:arial; font-weight:bold; padding:5px; color:#ffffff">
 <tr></tr>
 </table>
 
@@ -199,7 +219,7 @@ th, td {
  <br></br>
  <br></br>
  
-        <div id="top_x_div" style="position:absolute;left:70px;top:315px;width: 55%; height: 1000px;"></div>
+        <div id="top_x_div" style="position:absolute;left:70px;top:315px;width: 55%; height: 1100px;"></div>
     </div>
  <div id="top_x_div" style="width: 35%; height: 500px;" align="left"></div>
 </body>
