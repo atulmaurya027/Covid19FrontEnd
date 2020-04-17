@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<meta http-equiv="refresh" content="120">
+<html>
+<head>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+ <script type="text/javascript">
+ google.charts.load('current', {'packages':['bar']});
+      google.charts.setOnLoadCallback(drawStuff);
+ var HttpClient = function() {
+ this.get = function(aUrl, aCallback) {
+ var anHttpRequest = new XMLHttpRequest();
+ anHttpRequest.onreadystatechange = function() { 
+ if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+ aCallback(anHttpRequest.responseText);
+ }
+ anHttpRequest.open( "GET", aUrl, true ); 
+ anHttpRequest.send(); 
+ }
+ }
+ var theurl='http://localhost:1709/covid/getcount';
+ var client = new HttpClient();
+ client.get(theurl, function(response) { 
+ var response1 = JSON.parse(response);
+	document.getElementById("totalConfirmed").innerHTML = response1.totalConfirmed;
+	document.getElementById("totalRecovered").innerHTML = response1.totalRecovered;
+	document.getElementById("totalDeaths").innerHTML = response1.totalDeaths;
+	document.getElementById("totalActive").innerHTML = response1.totalActive;
+	document.getElementById("todayConfirmed").innerHTML = response1.todayConfirmed;
+	document.getElementById("todayRecovered").innerHTML = response1.todayRecovered;
+	document.getElementById("todayDeaths").innerHTML = response1.todayDeaths;
+ }); 
+ 
+ //Display the patients in states
+ var response3;
+ var HttpClient1 = function() {
+ this.get = function(aUrl, aCallback1) {
+ var anHttpRequest1 = new XMLHttpRequest();
+ anHttpRequest1.onreadystatechange = function() { 
+ if (anHttpRequest1.readyState == 4 && anHttpRequest1.status == 200)
+ aCallback1(anHttpRequest1.responseText);
+ }
+ anHttpRequest1.open( "GET", aUrl, true ); 
+ anHttpRequest1.send(); 
+ }
+ }
+ var stateCountList;
+ var mainarray;
+ var client1 = new HttpClient1();
+ var stateCountUrl='http://localhost:1709/covid/statecount';
+ client1.get(stateCountUrl, function(response) { 
+	var response2 = JSON.parse(response);
+	stateCountList = response2.statewise;
+	CreateChartDataFromJSON();
+	CreateTableFromJSON();
+ }); 
+ 
+ function CreateChartDataFromJSON() {
+ 
+ // Create one dimensional array 
+mainarray = new Array(stateCountList.length + 1); 
+var nestedarray = new Array(2);
+nestedarray[0] = "state";
+nestedarray[1] = "confirmed";
+mainarray[0] = nestedarray;
+mainarray[0] = nestedarray;
+          for (var i = 0; i < stateCountList.length; i++) {
+            for (var j = 0; j < 2; j++) {
+			nestedarray = new Array(2);
+                
+					nestedarray[0] = stateCountList[i].state;
+					var str = nestedarray[1] = stateCountList[i].totalConfirmed;
+					var newStr = str.substring(0, str.length-1);
+					nestedarray[j] = parseInt(newStr);
+            }
+			mainarray[i+1] = nestedarray;
+        }		
+    }
+
+      function drawStuff() {
+        var data = new google.visualization.arrayToDataTable(mainarray);
+
+        var options = {
+          title: 'Statewise count',
+          width: "40%",
+		  chartArea:{left:10,top:100,width:"35%",height:"35%"},
+          legend: { position: 'none' },
+          chart: { title: 'Statewise count',
+                   subtitle: '' },
+          bars: 'horizontal', // Required for Material Bar Charts.
+          axes: {
+            x: {
+              0: { side: 'top', label: 'Total Confirmed Cases'} // Top x-axis.
+            }
+          },
+          bar: { groupWidth: "90%" }
+        };
+        var chart = new google.charts.Bar(document.getElementById('top_x_div'));
+        chart.draw(data, options);
+		chart
+      };
+	  
+	  
+ function CreateTableFromJSON() {
+        var col = [];
+        for (var i = 0; i < stateCountList.length; i++) {
+            for (var key in stateCountList[i]) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+            }
+        }
+        var table = document.getElementById("dynamicTable");
+        var tr = table.insertRow(-1);
+        for (var i = 0; i < stateCountList.length; i++) {
+
+            tr = table.insertRow(-1);
+
+            for (var j = 0; j < col.length; j++) {
+                var tabCell = tr.insertCell(-1);
+				tabCell.width="30%";
+				tabCell.height= "20px";
+                tabCell.innerHTML = stateCountList[i][col[j]];
+            }
+        }
+        var divContainer = document.getElementById("showData");
+        divContainer.innerHTML = "";
+        divContainer.appendChild(table);	
+    }
+$.fn.infiniteScrollUp=function(){
+    		var self=this,kids=self.children()
+    		kids.slice(20).hide()
+    		setInterval(function(){
+    			kids.filter(':hidden').eq(0).fadeIn()
+    			kids.eq(0).fadeOut(function(){
+    				$(this).appendTo(self)
+    				kids=self.children()
+    			})
+    		},1500)
+    		return this
+    	}
+    	$(function(){
+    		$('tbody').infiniteScrollUp()
+    	})
+ </script>
+  <style>
+table {
+  border-collapse: collapse;
+  border: none;
+}
+th, td {
+  border: none;
+}
+
+.fntBold { font-weight: bold; }
+
+</style>
+</head>
+<body style="background-color:#333333;"> 
+<div style="position:relative;width:100%">
+<table border="1" align="right" width="35%" id="dynamicTable" style="font-size:30pt; font-family:arial; font-weight:bold; padding:5px; color:#ffffff">
+<tr></tr>
+</table>
+
+<div id="showData">
+</div>
+<div> 
+<center>
+<h1 style="font-size:350%; font-family:arial;color:#ffffff;">Covid19 India: Live Status</h1>
+<center>
+</div> 
+<div>
+
+ <table border="1" align="left" width="65%" id = "counts" style="font-size:39pt; font-family:arial; font-weight:bold; padding:5px">
+ <tr>
+	<td width="15%"></td>
+	<td style="color:#c1c40e; width=25%;">Confirmed</td>
+	<td style="color:green; width=25%;">Recovered</td>
+	<td style="color:#cc2121; width=15%;">Died</td>
+	<td style="color:#fcbd0f; width=20%;">Active</td>
+ </tr>
+ <tr>
+	<td style="color:#ffffff">TOTAL: </td>
+	<td style="color:#c1c40e; font-family=arial; font-weight=bold;" id="totalConfirmed"></td>
+	<td style="color:green" id="totalRecovered"></td>
+	<td style="color:#cc2121" id="totalDeaths"></td>
+	<td style="color:#fcbd0f" id="totalActive"></td>
+ </tr>
+ <tr>
+	<td style="color:#ffffff">TODAY: </td>
+	<td style="color:#c1c40e" id="todayConfirmed"></td>
+	<td style="color:green" id="todayRecovered"></td>
+	<td style="color:#cc2121" id="todayDeaths"></td>
+	<td></td>
+ </tr>
+ </table>
+ </div> 
+ <br></br>
+ <br></br>
+ <br></br>
+ 
+        <div id="top_x_div" style="position:absolute;left:70px;top:315px;width: 55%; height: 1000px;"></div>
+    </div>
+ <div id="top_x_div" style="width: 35%; height: 500px;" align="left"></div>
+</body>
+</html>
